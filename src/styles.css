@@ -1,1 +1,7 @@
-/* You can add global styles to this file, and also import other style files */
+/* CSS mínimo — solo para que no se vea completamente roto */
+* { box-sizing: border-box; }
+body { font-family: Arial, sans-serif; margin: 0; font-size: 14px; }
+a { text-decoration: none; }
+a.active { text-decoration: underline; font-weight: bold; }
+table { font-size: 13px; }
+input, select, button { font-size: 14px; }

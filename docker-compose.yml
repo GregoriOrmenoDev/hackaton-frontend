@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+
+  # ==========================================
+  # FRONTEND: Angular servido por nginx
+  # ==========================================
+  frontend:
+    build:
+      context: .          # Usa el Dockerfile de esta carpeta
+      dockerfile: Dockerfile
+    container_name: techstore-frontend
+    ports:
+      - "80:80"           # Frontend en http://localhost
+    environment:
+      # URL del backend que nginx usa para hacer proxy de /api/
+      # "techstore-backend" es el nombre del contenedor del backend
+      # Si estas en AWS, cambia por: http://IP_EC2_BACKEND:8080
+      - BACKEND_URL=http://techstore-backend:8080
+    networks:
+      - database_techstore-network  # Misma red que el backend y la BD
+
+networks:
+  # Red externa creada por database/docker-compose.yml
+  database_techstore-network:
+    external: true
+
+# ==========================================
+# COMANDOS UTILES
+# ==========================================
+# Levantar (construye la imagen y levanta):
+#   docker compose up -d --build
+#
+# Ver logs:
+#   docker logs techstore-frontend -f
+#
+# Bajar:
+#   docker compose down
+#
+# ORDEN CORRECTO PARA LEVANTAR TODO:
+#   1. cd database/     → docker compose up -d
+#   2. Ejecutar hackaton.sql en SSMS
+#   3. cd hackaton/     → docker compose up -d --build   (backend)
+#   4. cd hackaton-fe/  → docker compose up -d --build   (frontend)
+#
+# URLs finales:
+#   Frontend:  http://localhost
+#   Backend:   http://localhost:8080/api/productos
+#   BD (SSMS): localhost,1433 / sa / TechStore_2026!

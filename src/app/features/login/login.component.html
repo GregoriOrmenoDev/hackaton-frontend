@@ -1,0 +1,20 @@
+<!-- Login minimalista: solo un formulario centrado -->
+<div style="max-width:320px; margin:80px auto; padding:20px; border:1px solid #ccc;">
+  <h2>TechStore - Login</h2>
+
+  <div *ngIf="error" style="color:red; margin-bottom:10px;">{{ error }}</div>
+
+  <div style="margin-bottom:10px;">
+    <label>Usuario</label><br>
+    <input type="text" [(ngModel)]="usuario" style="width:100%; padding:6px;" />
+  </div>
+
+  <div style="margin-bottom:10px;">
+    <label>Contraseña</label><br>
+    <input type="password" [(ngModel)]="password" (keyup.enter)="login()" style="width:100%; padding:6px;" />
+  </div>
+
+  <button (click)="login()" [disabled]="loading" style="width:100%; padding:8px;">
+    {{ loading ? 'Ingresando...' : 'Ingresar' }}
+  </button>
+</div>

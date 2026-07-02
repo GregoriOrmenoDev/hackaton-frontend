@@ -1,0 +1,59 @@
+<h2>Clientes</h2>
+
+<p *ngIf="mensaje" style="color:green;">{{ mensaje }}</p>
+<p *ngIf="loading">Cargando...</p>
+
+<button (click)="nuevo()" style="margin-bottom:10px;">+ Nuevo Cliente</button>
+
+<!-- Formulario -->
+<div *ngIf="showForm" style="border:1px solid #333; padding:16px; margin-bottom:16px; max-width:400px;">
+  <h3>{{ editando ? 'Editar' : 'Nuevo' }} Cliente</h3>
+
+  <div style="margin-bottom:8px;">
+    <label>Nombre *</label><br>
+    <input type="text" [(ngModel)]="form.nombre" style="width:100%;" />
+  </div>
+  <div style="margin-bottom:8px;">
+    <label>DNI * (8 dígitos)</label><br>
+    <input type="text" [(ngModel)]="form.dni" maxlength="8" style="width:100%;" />
+  </div>
+  <div style="margin-bottom:8px;">
+    <label>Teléfono</label><br>
+    <input type="text" [(ngModel)]="form.telefono" style="width:100%;" />
+  </div>
+  <div style="margin-bottom:8px;">
+    <label>Email</label><br>
+    <input type="email" [(ngModel)]="form.email" style="width:100%;" />
+  </div>
+
+  <div style="display:flex; gap:8px; margin-top:12px;">
+    <button (click)="guardar()">Guardar</button>
+    <button (click)="cancelar()">Cancelar</button>
+  </div>
+</div>
+
+<!-- Tabla -->
+<table border="1" cellpadding="6" cellspacing="0" style="width:100%; border-collapse:collapse;">
+  <thead style="background:#eee;">
+    <tr>
+      <th>ID</th><th>Nombre</th><th>DNI</th><th>Teléfono</th><th>Email</th><th>Estado</th><th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let c of clientes">
+      <td>{{ c.idCliente }}</td>
+      <td>{{ c.nombre }}</td>
+      <td>{{ c.dni }}</td>
+      <td>{{ c.telefono }}</td>
+      <td>{{ c.email }}</td>
+      <td>{{ c.estado ? 'Activo' : 'Inactivo' }}</td>
+      <td>
+        <button (click)="editar(c)">Editar</button>
+        <button (click)="eliminar(c)" style="margin-left:4px;">Eliminar</button>
+      </td>
+    </tr>
+    <tr *ngIf="clientes.length === 0 && !loading">
+      <td colspan="7" style="text-align:center;">No hay clientes</td>
+    </tr>
+  </tbody>
+</table>

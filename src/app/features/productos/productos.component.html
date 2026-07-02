@@ -1,0 +1,83 @@
+<h2>Productos</h2>
+
+<!-- Mensaje de feedback -->
+<p *ngIf="mensaje" style="color:green;">{{ mensaje }}</p>
+<p *ngIf="loading">Cargando...</p>
+
+<!-- Botones de acción -->
+<div style="margin-bottom:10px; display:flex; gap:8px; flex-wrap:wrap;">
+  <button (click)="nuevo()">+ Nuevo Producto</button>
+  <button (click)="exportarExcel()">Exportar Excel</button>
+  <button (click)="exportarPDF()">Exportar PDF</button>
+</div>
+
+<!-- Importación -->
+<div style="margin-bottom:16px; border:1px solid #ccc; padding:10px; display:inline-block;">
+  <strong>Importar productos:</strong>
+  <input type="file" accept=".csv,.xlsx" (change)="onArchivoSeleccionado($event)" />
+  <button (click)="importarCSV()">Importar CSV</button>
+  <button (click)="importarExcel()">Importar Excel</button>
+</div>
+
+<!-- Formulario crear/editar -->
+<div *ngIf="showForm" style="border:1px solid #333; padding:16px; margin-bottom:16px; max-width:500px;">
+  <h3>{{ editando ? 'Editar' : 'Nuevo' }} Producto</h3>
+
+  <div style="margin-bottom:8px;">
+    <label>Nombre *</label><br>
+    <input type="text" [(ngModel)]="form.nombre" style="width:100%;" />
+  </div>
+  <div style="margin-bottom:8px;">
+    <label>Descripción</label><br>
+    <input type="text" [(ngModel)]="form.descripcion" style="width:100%;" />
+  </div>
+  <div style="margin-bottom:8px;">
+    <label>Categoría *</label><br>
+    <input type="text" [(ngModel)]="form.categoria" style="width:100%;" />
+  </div>
+  <div style="margin-bottom:8px;">
+    <label>Precio *</label><br>
+    <input type="number" [(ngModel)]="form.precio" style="width:100%;" />
+  </div>
+  <div style="margin-bottom:8px;">
+    <label>Stock *</label><br>
+    <input type="number" [(ngModel)]="form.stock" style="width:100%;" />
+  </div>
+
+  <div style="display:flex; gap:8px; margin-top:12px;">
+    <button (click)="guardar()">Guardar</button>
+    <button (click)="cancelar()">Cancelar</button>
+  </div>
+</div>
+
+<!-- Tabla -->
+<table border="1" cellpadding="6" cellspacing="0" style="width:100%; border-collapse:collapse;">
+  <thead style="background:#eee;">
+    <tr>
+      <th>ID</th>
+      <th>Nombre</th>
+      <th>Categoría</th>
+      <th>Precio</th>
+      <th>Stock</th>
+      <th>Estado</th>
+      <th>Acciones</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let p of productos">
+      <td>{{ p.idProducto }}</td>
+      <td>{{ p.nombre }}</td>
+      <td>{{ p.categoria }}</td>
+      <td>S/. {{ p.precio }}</td>
+      <td>{{ p.stock }}</td>
+      <td>{{ p.estado ? 'Activo' : 'Inactivo' }}</td>
+      <td>
+        <button (click)="editar(p)">Editar</button>
+        <button (click)="eliminar(p)" style="margin-left:4px;">Eliminar</button>
+      </td>
+    </tr>
+    <tr *ngIf="productos.length === 0 && !loading">
+      <td colspan="7" style="text-align:center;">No hay productos</td>
+    </tr>
+  </tbody>
+</table>

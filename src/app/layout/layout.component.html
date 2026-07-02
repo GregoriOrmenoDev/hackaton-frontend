@@ -1,0 +1,21 @@
+<!-- Navegación simple en la parte superior -->
+<nav style="background:#333; color:white; padding:10px 20px; display:flex; gap:20px; align-items:center;">
+  <strong>TechStore</strong>
+
+  <a routerLink="/productos"  routerLinkActive="active" style="color:white;">Productos</a>
+  <a routerLink="/clientes"   routerLinkActive="active" style="color:white;">Clientes</a>
+  <a routerLink="/ventas"     routerLinkActive="active" style="color:white;">Ventas</a>
+  <a routerLink="/usuarios"   routerLinkActive="active" style="color:white;">Usuarios</a>
+
+  <!-- Empuja el logout a la derecha -->
+  <span style="margin-left:auto;">
+    Hola, {{ auth.getUser()?.nombre }} ({{ auth.getRol() }})
+    &nbsp;
+    <button (click)="logout()" style="cursor:pointer;">Cerrar sesión</button>
+  </span>
+</nav>
+
+<!-- Aquí se renderiza el componente de la ruta activa -->
+<div style="padding:20px;">
+  <router-outlet></router-outlet>
+</div>
