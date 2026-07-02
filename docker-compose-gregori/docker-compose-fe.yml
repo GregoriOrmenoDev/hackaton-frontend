@@ -1,0 +1,27 @@
+name: hackaton
+
+services:
+  frontend:
+    image: gregoriormenosanchez/hackaton-frontend:latest
+    container_name: hackaton-frontend
+    ports:
+      - "80:80"
+    environment:
+      # ADAPTAR: En EC2 cambia por http://IP_PRIVADA_EC2_BACKEND:8080
+      - BACKEND_URL=http://hackaton-backend:8080
+    networks:
+      - hackaton-network
+
+networks:
+  hackaton-network:
+    external: true
+
+# ── LOCAL ────────────────────────────────────────────────────────────────────
+# Levantar:  docker compose -f docker-compose-fe.yml up -d
+# Bajar:     docker compose -f docker-compose-fe.yml down
+# Logs:      docker logs hackaton-frontend -f
+#
+# ── EC2 FRONTEND ─────────────────────────────────────────────────────────────
+# 1. docker network create hackaton-network
+# 2. Cambiar BACKEND_URL por http://IP_PRIVADA_EC2_BACKEND:8080
+# 3. docker compose -f docker-compose-fe.yml up -d

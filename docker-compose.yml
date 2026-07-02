@@ -16,7 +16,7 @@ services:
       # URL del backend que nginx usa para hacer proxy de /api/
       # "techstore-backend" es el nombre del contenedor del backend
       # Si estas en AWS, cambia por: http://IP_EC2_BACKEND:8080
-      - BACKEND_URL=http://techstore-backend:8080
+      - BACKEND_URL=http://hackaton-backend:8080
     networks:
       - database_techstore-network  # Misma red que el backend y la BD
 
