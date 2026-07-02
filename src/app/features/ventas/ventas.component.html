@@ -1,98 +1,84 @@
-<h2>Ventas</h2>
+<h2>Matrículas</h2>
 
 <p *ngIf="mensaje" style="color:green;">{{ mensaje }}</p>
+<p *ngIf="loadingVentas">Cargando...</p>
 
-<button (click)="nuevaVenta()" style="margin-bottom:10px;">+ Nueva Venta</button>
+<div style="margin-bottom:10px;">
+  <button (click)="nuevaMatricula()">+ Nueva Matrícula</button>
+</div>
 
-<!-- ===== FORMULARIO NUEVA VENTA ===== -->
-<div *ngIf="showFormVenta" style="border:1px solid #333; padding:16px; margin-bottom:20px; max-width:600px;">
-  <h3>Nueva Venta</h3>
+<!-- Formulario nueva matrícula -->
+<div *ngIf="showFormVenta" style="border:1px solid #333; padding:16px; margin-bottom:16px; max-width:500px;">
+  <h3>Registrar Matrícula</h3>
 
-  <!-- Cliente -->
-  <div style="margin-bottom:10px;">
-    <label>Cliente *</label><br>
-    <select [(ngModel)]="idClienteSeleccionado" style="width:100%;">
-      <option [value]="0">-- Selecciona un cliente --</option>
-      <option *ngFor="let c of clientes" [value]="c.idCliente">
-        {{ c.nombre }} - DNI: {{ c.dni }}
+  <div style="margin-bottom:8px;">
+    <label>Estudiante *</label><br>
+    <select [(ngModel)]="form.studentId" style="width:100%;">
+      <option value="0">-- Selecciona --</option>
+      <option *ngFor="let e of estudiantes" [value]="e.idProducto">
+        {{ e.nombre }} - DNI: {{ e.descripcion }}
       </option>
     </select>
   </div>
 
-  <!-- Agregar producto al carrito -->
-  <div style="margin-bottom:10px; display:flex; gap:8px; align-items:flex-end; flex-wrap:wrap;">
-    <div>
-      <label>Producto</label><br>
-      <select [(ngModel)]="productoSeleccionadoId" style="min-width:200px;">
-        <option [value]="0">-- Selecciona --</option>
-        <option *ngFor="let p of productos" [value]="p.idProducto">
-          {{ p.nombre }} (Stock: {{ p.stock }}) - S/. {{ p.precio }}
-        </option>
-      </select>
-    </div>
-    <div>
-      <label>Cantidad</label><br>
-      <input type="number" [(ngModel)]="cantidadSeleccionada" min="1" style="width:70px;" />
-    </div>
-    <button (click)="agregarAlCarrito()">Agregar</button>
+  <div style="margin-bottom:8px;">
+    <label>Carrera *</label><br>
+    <select [(ngModel)]="form.careerId" style="width:100%;">
+      <option value="0">-- Selecciona --</option>
+      <option *ngFor="let c of carreras" [value]="c.idCareer">
+        {{ c.career }} - S/. {{ c.investment }}
+      </option>
+    </select>
   </div>
 
-  <!-- Carrito -->
-  <div *ngIf="carrito.length > 0">
-    <table border="1" cellpadding="5" cellspacing="0" style="width:100%; border-collapse:collapse; margin-bottom:10px;">
-      <thead style="background:#eee;">
-        <tr>
-          <th>Producto</th><th>Precio Unit.</th><th>Cantidad</th><th>Subtotal</th><th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let item of carrito; let i = index">
-          <td>{{ item.producto.nombre }}</td>
-          <td>S/. {{ item.producto.precio }}</td>
-          <td>{{ item.cantidad }}</td>
-          <td>S/. {{ item.producto.precio * item.cantidad }}</td>
-          <td><button (click)="quitarDelCarrito(i)">X</button></td>
-        </tr>
-      </tbody>
-      <tfoot>
-        <tr>
-          <td colspan="3" style="text-align:right;"><strong>TOTAL:</strong></td>
-          <td colspan="2"><strong>S/. {{ totalCarrito }}</strong></td>
-        </tr>
-      </tfoot>
-    </table>
+  <div style="margin-bottom:8px;">
+    <label>Sede *</label><br>
+    <input type="text" [(ngModel)]="form.venueName" style="width:100%;" />
   </div>
-  <p *ngIf="carrito.length === 0" style="color:#666;">No hay productos en el carrito</p>
 
-  <div style="display:flex; gap:8px;">
-    <button (click)="registrarVenta()" [disabled]="guardando">
-      {{ guardando ? 'Guardando...' : 'Registrar Venta' }}
+  <div style="margin-bottom:8px;">
+    <label>Promotor</label><br>
+    <input type="text" [(ngModel)]="form.promoter" style="width:100%;" />
+  </div>
+
+  <div style="margin-bottom:8px;">
+    <label>Monto S/.</label><br>
+    <input type="number" [(ngModel)]="form.price" style="width:100%;" />
+  </div>
+
+  <div style="display:flex; gap:8px; margin-top:12px;">
+    <button (click)="registrarMatricula()" [disabled]="guardando">
+      {{ guardando ? 'Guardando...' : 'Registrar' }}
     </button>
-    <button (click)="cancelarVenta()">Cancelar</button>
+    <button (click)="cancelar()">Cancelar</button>
   </div>
 </div>
 
-<!-- ===== HISTORIAL DE VENTAS ===== -->
-<h3>Historial</h3>
-<p *ngIf="loadingVentas">Cargando...</p>
-
+<!-- Tabla de matrículas -->
 <table border="1" cellpadding="6" cellspacing="0" style="width:100%; border-collapse:collapse;">
   <thead style="background:#eee;">
     <tr>
-      <th>ID</th><th>Fecha</th><th>Cliente</th><th>Vendedor</th><th>Total</th><th>Items</th>
+      <th>ID</th>
+      <th>Estudiante</th>
+      <th>Carrera</th>
+      <th>Sede</th>
+      <th>Promotor</th>
+      <th>Monto</th>
+      <th>Estado</th>
     </tr>
   </thead>
   <tbody>
-    <tr *ngFor="let v of ventas">
-      <td>{{ v.idVenta }}</td>
-      <td>{{ v.fecha | date:'dd/MM/yyyy HH:mm' }}</td>
-      <td>{{ v.cliente ? v.cliente.nombre : '' }}</td>
-      <td>{{ v.usuario ? v.usuario.nombre : '' }}</td>
-      <td>S/. {{ v.total }}</td>
-      <td>{{ v.detalles ? v.detalles.length : 0 }} producto(s)</td>
+    <tr *ngFor="let m of matriculas">
+      <td>{{ m.idVenta }}</td>
+      <td>{{ m.estudiante?.nombre }}</td>
+      <td>{{ m.carrera?.career }}</td>
+      <td>{{ m.venueName }}</td>
+      <td>{{ m.promoter }}</td>
+      <td>S/. {{ m.total }}</td>
+      <td>{{ m.estado ? 'Activo' : 'Inactivo' }}</td>
     </tr>
-    <tr *ngIf="ventas.length === 0 && !loadingVentas">
-      <td colspan="6" style="text-align:center;">No hay ventas registradas</td>
+    <tr *ngIf="matriculas.length === 0 && !loadingVentas">
+      <td colspan="7" style="text-align:center;">No hay matrículas</td>
     </tr>
   </tbody>
 </table>

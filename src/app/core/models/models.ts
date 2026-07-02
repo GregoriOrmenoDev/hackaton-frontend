@@ -1,17 +1,31 @@
-// ============================================================
-// MODELOS: interfaces que mapean exactamente el JSON del backend
-// Si agregas un campo en la BD y en el backend, agrégalo aquí también
-// ============================================================
-
 export interface Usuario {
   idUsuario?: number;
   nombre: string;
   usuario: string;
   password: string;
-  rol: string;       // 'ADMIN' | 'VENDEDOR'
+  rol: string;
   estado?: boolean;
 }
 
+// Estudiante (tabla maestra)
+export interface Producto {
+  idProducto?: number;
+  nombre: string;       // name
+  descripcion?: string; // DNI
+  categoria?: string;   // phone
+  email?: string;
+  estado?: boolean;
+}
+
+// Carrera
+export interface Career {
+  idCareer?: number;
+  career: string;
+  cycles?: string;
+  investment?: number;
+}
+
+// Cliente reutilizado para carreras en el selector
 export interface Cliente {
   idCliente?: number;
   nombre: string;
@@ -21,14 +35,25 @@ export interface Cliente {
   estado?: boolean;
 }
 
-export interface Producto {
-  idProducto?: number;
-  nombre: string;
-  descripcion?: string;
-  categoria: string;
-  precio: number;
-  stock: number;
+// Matricula
+export interface Venta {
+  idVenta?: number;
+  estudiante?: Producto;
+  carrera?: Career;
+  venueName?: string;
+  promoter?: string;
+  total?: number;
   estado?: boolean;
+  createdAt?: string;
+}
+
+// DTO para registrar matricula
+export interface VentaRequest {
+  studentId: number;
+  careerId: number;
+  venueName: string;
+  promoter: string;
+  price: number;
 }
 
 export interface DetalleVenta {
@@ -37,20 +62,4 @@ export interface DetalleVenta {
   cantidad: number;
   precioUnitario: number;
   subtotal?: number;
-}
-
-export interface Venta {
-  idVenta?: number;
-  fecha?: string;
-  cliente: Cliente;
-  usuario: Usuario;
-  total: number;
-  detalles: DetalleVenta[];
-}
-
-// DTO para crear una venta (lo que enviamos al backend)
-export interface VentaRequest {
-  idCliente: number;
-  idUsuario: number;
-  detalles: { idProducto: number; cantidad: number }[];
 }

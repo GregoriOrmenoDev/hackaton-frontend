@@ -3,15 +3,9 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { VentaService } from '../../core/services/venta.service';
 import { ProductoService } from '../../core/services/producto.service';
-import { ClienteService } from '../../core/services/cliente.service';
+import { CareerService } from '../../core/services/career.service';
 import { AuthService } from '../../core/services/auth.service';
-import { Venta, Producto, Cliente, VentaRequest } from '../../core/models/models';
-
-// Item del carrito (antes de enviar al backend)
-interface ItemCarrito {
-  producto: Producto;
-  cantidad: number;
-}
+import { Venta, Producto, Career, VentaRequest } from '../../core/models/models';
 
 @Component({
   selector: 'app-ventas',
@@ -21,117 +15,75 @@ interface ItemCarrito {
 })
 export class VentasComponent implements OnInit {
 
-  // ---- Historial ----
-  ventas: Venta[]    = [];
-  loadingVentas      = false;
-
-  // ---- Nueva venta ----
-  showFormVenta      = false;
-  clientes: Cliente[]  = [];
-  productos: Producto[] = [];
-  idClienteSeleccionado = 0;
-  carrito: ItemCarrito[] = [];
-  productoSeleccionadoId = 0;
-  cantidadSeleccionada   = 1;
+  matriculas: Venta[] = [];
+  loadingVentas = false;
+  showFormVenta = false;
   mensaje = '';
   guardando = false;
+
+  estudiantes: Producto[] = [];
+  carreras: Career[] = [];
+
+  form = {
+    studentId: 0,
+    careerId: 0,
+    venueName: '',
+    promoter: '',
+    price: 0
+  };
 
   constructor(
     private ventaSvc: VentaService,
     private productoSvc: ProductoService,
-    private clienteSvc: ClienteService,
+    private careerSvc: CareerService,
     public auth: AuthService
   ) {}
 
-  ngOnInit() {
-    this.cargarVentas();
-  }
+  ngOnInit() { this.cargarMatriculas(); }
 
-  cargarVentas() {
+  cargarMatriculas() {
     this.loadingVentas = true;
     this.ventaSvc.getAll().subscribe({
-      next: data => { this.ventas = data; this.loadingVentas = false; },
-      error: ()   => { this.mensaje = 'Error al cargar ventas'; this.loadingVentas = false; }
+      next: data => { this.matriculas = data; this.loadingVentas = false; },
+      error: ()   => { this.mensaje = 'Error al cargar matrículas'; this.loadingVentas = false; }
     });
   }
 
-  // Abre el formulario de nueva venta y carga los datos necesarios
-  nuevaVenta() {
-    this.carrito                  = [];
-    this.idClienteSeleccionado    = 0;
-    this.productoSeleccionadoId   = 0;
-    this.cantidadSeleccionada     = 1;
-    this.mensaje                  = '';
-
-    // Carga clientes y productos en paralelo
-    this.clienteSvc.getAll().subscribe(c => this.clientes = c);
-    this.productoSvc.getAll().subscribe(p => this.productos = p);
-
+  nuevaMatricula() {
+    this.form = { studentId: 0, careerId: 0, venueName: '', promoter: '', price: 0 };
+    this.mensaje = '';
+    this.productoSvc.getAll().subscribe(e => this.estudiantes = e);
+    this.careerSvc.getAll().subscribe(c => this.carreras = c);
     this.showFormVenta = true;
   }
 
-  // Agrega un producto al carrito
-  agregarAlCarrito() {
-    if (!this.productoSeleccionadoId || this.cantidadSeleccionada < 1) return;
-
-    const producto = this.productos.find(p => p.idProducto === +this.productoSeleccionadoId);
-    if (!producto) return;
-
-    // Si ya está en el carrito, suma la cantidad
-    const existente = this.carrito.find(i => i.producto.idProducto === producto.idProducto);
-    if (existente) {
-      existente.cantidad += this.cantidadSeleccionada;
-    } else {
-      this.carrito.push({ producto, cantidad: this.cantidadSeleccionada });
-    }
-
-    // Resetea la selección
-    this.productoSeleccionadoId = 0;
-    this.cantidadSeleccionada   = 1;
-  }
-
-  quitarDelCarrito(index: number) {
-    this.carrito.splice(index, 1);
-  }
-
-  // Calcula el total del carrito
-  get totalCarrito(): number {
-    return this.carrito.reduce((sum, i) => sum + i.producto.precio * i.cantidad, 0);
-  }
-
-  // Registra la venta
-  registrarVenta() {
-    if (!this.idClienteSeleccionado) { this.mensaje = 'Selecciona un cliente'; return; }
-    if (this.carrito.length === 0)   { this.mensaje = 'Agrega al menos un producto'; return; }
-
-    const usuario = this.auth.getUser();
-    if (!usuario?.idUsuario)         { this.mensaje = 'No hay usuario en sesión'; return; }
+  registrarMatricula() {
+    if (!this.form.studentId) { this.mensaje = 'Selecciona un estudiante'; return; }
+    if (!this.form.careerId)  { this.mensaje = 'Selecciona una carrera'; return; }
+    if (!this.form.venueName) { this.mensaje = 'Ingresa la sede'; return; }
 
     const request: VentaRequest = {
-      idCliente: +this.idClienteSeleccionado,
-      idUsuario: usuario.idUsuario,
-      detalles: this.carrito.map(i => ({
-        idProducto: i.producto.idProducto!,
-        cantidad:   i.cantidad
-      }))
+      studentId: +this.form.studentId,
+      careerId:  +this.form.careerId,
+      venueName: this.form.venueName,
+      promoter:  this.form.promoter,
+      price:     +this.form.price
     };
 
     this.guardando = true;
     this.ventaSvc.create(request).subscribe({
-      next: venta => {
-        this.mensaje       = `Venta #${venta.idVenta} registrada. Total: S/. ${venta.total}`;
+      next: m => {
+        this.mensaje = `Matrícula #${m.idVenta} registrada correctamente`;
         this.showFormVenta = false;
-        this.guardando     = false;
-        this.cargarVentas();
+        this.guardando = false;
+        this.cargarMatriculas();
       },
       error: e => {
-        this.mensaje   = 'Error: ' + (e.error || e.message);
+        this.mensaje = 'Error: ' + (e.error || e.message);
         this.guardando = false;
       }
     });
   }
 
-  cancelarVenta() {
-    this.showFormVenta = false;
-  }
+  cancelar() { this.showFormVenta = false; }
 }
